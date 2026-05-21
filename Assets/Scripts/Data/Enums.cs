@@ -1,3 +1,4 @@
+// Assets/Scripts/Data/Enums.cs
 namespace PickMeUp.Data
 {
     public enum GameState
@@ -5,6 +6,7 @@ namespace PickMeUp.Data
         Boot,
         Hub,
         Combat,
+        Tower,
         Saving
     }
 
@@ -12,25 +14,27 @@ namespace PickMeUp.Data
     {
         Fire,
         Water,
-        Grass,
+        Earth,
+        Wind,
         Light,
         Dark
     }
 
     public enum ClassType
     {
-        Warrior,
+        Vanguard,
+        Sniper,
+        Support,
         Mage,
-        Archer,
-        Paladin,
-        Rogue
+        Tank
     }
 
     public enum SkillType
     {
-        Attack,
-        Defense,
-        Heal,
-        Utility
+        Active,
+        Passive,
+        Buff,
+        Debuff,
+        Damage
     }
 }

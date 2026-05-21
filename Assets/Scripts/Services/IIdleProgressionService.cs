@@ -1,9 +1,9 @@
-using PickMeUp.Data;
-
+// Assets/Scripts/Services/IIdleProgressionService.cs
 namespace PickMeUp.Services
 {
     public interface IIdleProgressionService
     {
-        IdleReward CalculateIdleReward(GameSaveData saveData, long elapsedSeconds);
+        IdleReward CalculateOfflineGains(long offlineSeconds);
+        long GetMaxOfflineDuration();
     }
 }
