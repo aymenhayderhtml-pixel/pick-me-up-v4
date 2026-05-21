@@ -89,6 +89,7 @@ namespace PickMeUp.Data
         public List<HeroInstance> HeroRoster;
         public int FloorProgress;
         public int HighestFloorCleared;
+        public long TotalXPEarnedAllTime;
 
         #endregion
 

@@ -1,4 +1,5 @@
-# Unity specific
+```
+# Unity specific ignores
 Library/
 Temp/
 Obj/
@@ -12,62 +13,51 @@ Builds/
 *.booproj
 *.svd
 *.pdb
-*.mdb
-*.opendive
-*.VC.db
-*.VC.VC.opendive
-[Bb]uild/
-[Bb]uilds/
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Uu]nityGenerated/
-Assembly-CSharp-Editor.cs.meta
-Assembly-CSharp.cs.meta
+*.meta
 *.log
-*.err
 *.unitypackage
-[Cc]rashlytics/[Bb]uild/
-[Aa]ssets/AssetStoreTools*
+[._]*.sln
+[._]*.user
+[._]*.userprefs
+[._]*.pidb
+[._]*.booproj
+[._]*.svd
+[._]*.pdb
+[._]*.meta
+[._]*.log
+[._]*.unitypackage
 
 # Visual Studio
+*.csproj
+*.unityproj
+*.sln
 *.suo
 *.user
-*.userosscache
-*.sln.docstates
-
-# Visual Studio Code
-.vscode/
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.opendb
+*.unityproj
+*.unitypackage
+[._]*.sln
+[._]*.user
+[._]*.userprefs
+[._]*.pidb
+[._]*.booproj
+[._]*.svd
+[._]*.opendb
 
 # Rider
 .idea/
 
-# Compiled Binary Files
-*.dll
-*.exe
-*.nupkg
-*.pdb
-*.mdb
-*.pidb
-*.cmake
-*.gcno
-*.gcda
-*.gcov
-
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-target/
-.gradle/
-
-# Environment variables
+# Environment
 .env
 .env.local
 *.env.*
+
+# Logs
+*.log
 
 # OS generated files
 .DS_Store
@@ -77,38 +67,4 @@ target/
 .Trashes
 ehthumbs.db
 Thumbs.db
-desktop.ini
-
-# Logs
-*.log
-*.err
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+```
