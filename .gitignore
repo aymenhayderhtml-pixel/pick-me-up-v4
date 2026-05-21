@@ -25,6 +25,8 @@ MemoryCaptures/
 
 # OS generated
 .DS_Store
+Thumbs.db
+*.DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
