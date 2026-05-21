@@ -25,13 +25,9 @@ namespace PickMeUp.Core
             ServiceRegistry.Register<IIdleProgressionService>(new IdleProgressionService());
             ServiceRegistry.Register<IGachaService>(new GachaService());
             ServiceRegistry.Register<IHeroRosterService>(new HeroRosterService());
+            ServiceRegistry.Register<ISynthesisService>(new SynthesisService());
             ServiceRegistry.Register<ICombatEngineService>(new CombatEngineService());
             ServiceRegistry.Register<ITowerService>(new TowerService());
-            
-            DataService dataService = gameObject.AddComponent<DataService>();
-            ServiceRegistry.Register<IDataService>(dataService);
-            
-            dataService.LoadAllDefinitions();
         }
 
         private void Start()

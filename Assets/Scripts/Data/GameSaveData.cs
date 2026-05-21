@@ -49,12 +49,25 @@ namespace PickMeUp.Data
     {
         public List<BannerPityEntry> BannerPityCounters;
         public List<BannerGuarantee> GuaranteedRateUp;
-
+        
         public GachaPityData()
         {
             BannerPityCounters = new List<BannerPityEntry>();
             GuaranteedRateUp = new List<BannerGuarantee>();
         }
+    }
+
+    /// <summary>
+    /// Logs a single synthesis attempt for historical tracking and analytics.
+    /// </summary>
+    [Serializable]
+    public struct SynthesisLogEntry
+    {
+        public string TargetHeroDefId;
+        public int PreviousStar;
+        public int NewStar;
+        public bool Success;
+        public string Timestamp;
     }
 
     /// <summary>
@@ -64,24 +77,52 @@ namespace PickMeUp.Data
     [Serializable]
     public class GameSaveData
     {
+        #region Metadata
+
         public int SchemaVersion = 1;
         public string Timestamp;
+
+        #endregion
+
+        #region Roster & Progression
+
         public List<HeroInstance> HeroRoster;
         public int FloorProgress;
         public int HighestFloorCleared;
+
+        #endregion
+
+        #region Economy
+
         public int Gems;
         public int Gold;
         public int Tickets;
+
+        #endregion
+
+        #region Meta & Gacha
+
         public MasterAuthorityData Master;
         public GachaPityData Pity;
         public string LastSeed;
+        public List<SynthesisLogEntry> SynthesisHistory;
 
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Creates a new, default GameSaveData instance for a fresh profile.
+        /// </summary>
         public GameSaveData()
         {
             HeroRoster = new List<HeroInstance>();
             Master = new MasterAuthorityData();
             Pity = new GachaPityData();
+            SynthesisHistory = new List<SynthesisLogEntry>();
             Timestamp = DateTime.UtcNow.ToString("o");
         }
+
+        #endregion
     }
 }
