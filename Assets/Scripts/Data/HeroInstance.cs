@@ -76,6 +76,15 @@ namespace PickMeUp.Data
             ATK = definition.BaseATK;
             DEF = definition.BaseDEF;
             SPD = definition.BaseSPD;
+            
+            // Apply star multiplier: higher base stars have better stats even at level 1
+            float starMultiplier = (float)System.Math.Pow(1.4, definition.BaseStar - 1);
+            MaxHP = (int)(definition.BaseHP * starMultiplier);
+            CurrentHP = MaxHP;
+            ATK = (int)(definition.BaseATK * starMultiplier);
+            DEF = (int)(definition.BaseDEF * starMultiplier);
+            SPD = (int)(definition.BaseSPD * starMultiplier);
+            // CritRate and CritDmg remain flat from definition
             CritRate = definition.BaseCritRate;
             CritDmg = definition.BaseCritDmg;
 

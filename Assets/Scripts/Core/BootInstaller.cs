@@ -26,6 +26,7 @@ namespace PickMeUp.Core
             ServiceRegistry.Register<IGachaService>(new GachaService());
             ServiceRegistry.Register<IHeroRosterService>(new HeroRosterService());
             ServiceRegistry.Register<ISynthesisService>(new SynthesisService());
+            ServiceRegistry.Register<IHeroProgressionService>(new HeroProgressionService());
             ServiceRegistry.Register<ICombatEngineService>(new CombatEngineService());
             ServiceRegistry.Register<ITowerService>(new TowerService());
         }

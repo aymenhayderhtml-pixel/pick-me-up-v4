@@ -1,29 +1,65 @@
-# Unity folders
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]ser[Ss]ettings/
-
-# MemoryCaptures
-MemoryCaptures/
-
-# Asset meta data should be tracked
-# *.meta
-
-# Visual Studio / Rider cache directories
-.idea/
-.vs/
-*.csproj
+```
+# Unity specific ignores
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+*.unityproj
 *.sln
 *.user
-*.userosscache
-*.suo
 *.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.meta
+*.log
+*.unitypackage
+[._]*.sln
+[._]*.user
+[._]*.userprefs
+[._]*.pidb
+[._]*.booproj
+[._]*.svd
+[._]*.pdb
+[._]*.meta
+[._]*.log
+[._]*.unitypackage
 
-# OS generated
+# Visual Studio
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.opendb
+*.unityproj
+*.unitypackage
+[._]*.sln
+[._]*.user
+[._]*.userprefs
+[._]*.pidb
+[._]*.booproj
+[._]*.svd
+[._]*.opendb
+
+# Rider
+.idea/
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Logs
+*.log
+
+# OS generated files
 .DS_Store
 Thumbs.db
 *.DS_Store
@@ -33,4 +69,4 @@ Thumbs.db
 .Trashes
 ehthumbs.db
 Thumbs.db
-Desktop.ini
+```

@@ -129,6 +129,13 @@ namespace PickMeUp.Services.Implementations
                     }
                 }
 
+                // Recalculate stats via HeroProgressionService
+                if (ServiceRegistry.HasService<IHeroProgressionService>())
+                {
+                    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
+                    prog.RecalculateStats(resultHero);
+                }
+
                 Debug.Log($"[SynthesisService] Synthesis SUCCESS! {resultHero.HeroDefId} is now {resultHero.CurrentStar}★.");
                 OnSynthesisSuccess?.Invoke(resultHero);
             }
@@ -162,6 +169,13 @@ namespace PickMeUp.Services.Implementations
 
                 resultHero = new HeroInstance(consolationDef);
                 rosterService.AddHero(resultHero);
+
+                // Recalculate stats via HeroProgressionService
+                if (ServiceRegistry.HasService<IHeroProgressionService>())
+                {
+                    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
+                    prog.RecalculateStats(resultHero);
+                }
 
                 Debug.Log($"[SynthesisService] Synthesis FAILED! Fodder burned. Received consolation hero: {resultHero.HeroDefId}.");
                 OnSynthesisFailure?.Invoke();
