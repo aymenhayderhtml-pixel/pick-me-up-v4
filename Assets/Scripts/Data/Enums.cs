@@ -1,6 +1,9 @@
 // Assets/Scripts/Data/Enums.cs
 namespace PickMeUp.Data
 {
+    /// <summary>
+    /// Represents the current high-level state of the game application.
+    /// </summary>
     public enum GameState
     {
         Boot,
@@ -9,6 +12,10 @@ namespace PickMeUp.Data
         Saving
     }
 
+    /// <summary>
+    /// Elemental affinities for heroes and enemies. 
+    /// Follows a cyclical advantage/disadvantage system.
+    /// </summary>
     public enum ElementType
     {
         None,
@@ -19,6 +26,9 @@ namespace PickMeUp.Data
         Dark
     }
 
+    /// <summary>
+    /// Combat classes that dictate base stat biases and skill archetypes.
+    /// </summary>
     public enum ClassType
     {
         Vanguard,
@@ -28,6 +38,9 @@ namespace PickMeUp.Data
         Ranger
     }
 
+    /// <summary>
+    /// Defines how a skill is triggered and resolved in combat.
+    /// </summary>
     public enum SkillType
     {
         Active,

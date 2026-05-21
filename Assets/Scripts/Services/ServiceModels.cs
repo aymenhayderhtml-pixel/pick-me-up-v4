@@ -5,41 +5,45 @@ using PickMeUp.Data;
 
 namespace PickMeUp.Services
 {
+    /// <summary>
+    /// Placeholder models used as inputs/outputs for service interfaces.
+    /// These will be fully fleshed out during the implementation phase.
+    /// </summary>
+
     [Serializable]
     public class CombatInput
     {
-        public List<HeroInstance> PlayerParty { get; set; } = new();
-        public List<HeroInstance> EnemyParty { get; set; } = new();
+        public List<HeroInstance> Party;
+        public int FloorLevel;
+        public int NodeSeed;
     }
 
     [Serializable]
     public class CombatResult
     {
-        public bool PlayerWon { get; set; }
-        public List<HeroInstance> SurvivorParty { get; set; } = new();
-        public List<CombatEventLog> EventLog { get; set; } = new();
+        public bool IsVictory;
+        public int TurnsTaken;
+        public List<HeroInstance> UpdatedPartyState;
     }
 
     [Serializable]
     public class CombatEventLog
     {
-        public string Description { get; set; }
-        public int TurnNumber { get; set; }
-        public string ActorName { get; set; }
+        public List<string> Events;
     }
 
     [Serializable]
     public class IdleReward
     {
-        public long Gold { get; set; }
-        public long Experience { get; set; }
-        public int HoursOffline { get; set; }
+        public int GoldEarned;
+        public int XpEarned;
+        public TimeSpan TimeSimulated;
     }
 
     [Serializable]
     public class SaveSnapshot
     {
-        public GameSaveData SaveData { get; set; }
-        public DateTime Timestamp { get; set; }
+        public int LastClearedFloor;
+        public List<HeroInstance> ActiveParty;
     }
 }

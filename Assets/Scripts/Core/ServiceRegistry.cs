@@ -5,62 +5,89 @@ using UnityEngine;
 
 namespace PickMeUp.Core
 {
+    /// <summary>
+    /// A thread-safe, generic service locator used for dependency injection.
+    /// Acts as the central registry for all core game services.
+    /// </summary>
     public static class ServiceRegistry
     {
-        private static readonly Dictionary<Type, object> _services = new();
-        private static readonly object _lockObject = new();
+        private static readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
+        private static readonly object _lock = new object();
 
-        public static void Register<T>(T service) where T : class
+        /// <summary>
+        /// Registers a service instance to its corresponding interface type.
+        /// </summary>
+        public static void Register<T>(T instance) where T : class
         {
-            if (service == null)
+            if (instance == null)
             {
-                Debug.LogError($"[ServiceRegistry] Attempted to register null service of type {typeof(T).Name}");
+                Debug.LogError($"[ServiceRegistry] Cannot register null instance of type {typeof(T).Name}.");
                 return;
             }
 
-            lock (_lockObject)
+            lock (_lock)
             {
-                _services[typeof(T)] = service;
-                Debug.Log($"[ServiceRegistry] Registered: {typeof(T).Name}");
-            }
-        }
-
-        public static T Resolve<T>() where T : class
-        {
-            lock (_lockObject)
-            {
-                if (_services.TryGetValue(typeof(T), out var service))
+                Type type = typeof(T);
+                if (_services.ContainsKey(type))
                 {
-                    return service as T;
+                    Debug.LogWarning($"[ServiceRegistry] Service {type.Name} is already registered. Overwriting.");
                 }
 
-                Debug.LogError($"[ServiceRegistry] Service not found: {typeof(T).Name}");
-                throw new InvalidOperationException($"Service {typeof(T).Name} not registered.");
+                _services[type] = instance;
+                Debug.Log($"[ServiceRegistry] Registered: {type.Name}");
             }
         }
 
+        /// <summary>
+        /// Resolves and returns a registered service instance.
+        /// </summary>
+        public static T Resolve<T>() where T : class
+        {
+            lock (_lock)
+            {
+                Type type = typeof(T);
+                if (_services.TryGetValue(type, out object service))
+                {
+                    return (T)service;
+                }
+
+                Debug.LogError($"[ServiceRegistry] Service {type.Name} not registered.");
+                throw new InvalidOperationException($"Service {type.Name} not registered.");
+            }
+        }
+
+        /// <summary>
+        /// Checks if a service of the specified type is currently registered.
+        /// </summary>
         public static bool HasService<T>() where T : class
         {
-            lock (_lockObject)
+            lock (_lock)
             {
                 return _services.ContainsKey(typeof(T));
             }
         }
 
+        /// <summary>
+        /// Unregisters a service, removing it from the registry.
+        /// </summary>
         public static void Unregister<T>() where T : class
         {
-            lock (_lockObject)
+            lock (_lock)
             {
-                if (_services.Remove(typeof(T)))
+                Type type = typeof(T);
+                if (_services.Remove(type))
                 {
-                    Debug.Log($"[ServiceRegistry] Unregistered: {typeof(T).Name}");
+                    Debug.Log($"[ServiceRegistry] Unregistered: {type.Name}");
                 }
             }
         }
 
+        /// <summary>
+        /// Clears all registered services. Should only be called during application shutdown or testing.
+        /// </summary>
         public static void Clear()
         {
-            lock (_lockObject)
+            lock (_lock)
             {
                 _services.Clear();
                 Debug.Log("[ServiceRegistry] All services cleared");
