@@ -1,24 +1,27 @@
-# Project Status: Pick Me Up V4
+# Pick Me Up: Infinite Gacha V4 - Project Status
 
-## Implemented
-- **ServiceRegistry**: Thread-safe static locator.
-- **BootInstaller**: Registers all services, loads definitions, transitions to Hub scene.
-- **Services**:
-  - `GameStateService` – state machine (Boot, Hub, Combat, Saving)
-  - `EventBus` – pub/sub with error isolation
-  - `DataService` – MonoBehaviour that loads `HeroDefinition`, `SkillDefinition`, `TraitDefinition` from Resources
-  - `SaveLoadService` – JSON save with XOR encryption, PlayerPrefs storage
-  - `IdleProgressionService` – stub (returns zero)
-  - `GachaService` – simple random pull, list-based pity tracking stubs
-- **Data Models**:
-  - ScriptableObjects: `HeroDefinition`, `SkillDefinition`, `TraitDefinition`
-  - Runtime: `HeroInstance`, `SkillState`, `TraitState`
-  - Save: `GameSaveData` with serializable pity lists (no dictionaries)
-- **UI**:
-  - `HubView` – displays hero count and first hero info; public `SetHeroText`
-  - `SummonButton` – triggers gacha pull and updates display
-- **Editor**:
-  - `CreateSampleData` – generates sample assets in Resources
+## Implemented Services
+- [x] `IGameStateService` / `GameStateService`
+- [x] `IEventBus` / `EventBus`
+- [x] `ISaveLoadService` / `SaveLoadService` (PlayerPrefs + XOR/Base64 stub)
+- [x] `IDataService` / `DataService` (Resources loading)
+- [x] `IIdleProgressionService` / `IdleProgressionService` (Stub)
+- [x] `IGachaService` / `GachaService` (Basic random pull, pity tracking structure)
+- [x] `IHeroRosterService` / `HeroRosterService` (Thread-safe collection management)
+
+## Implemented UI Components
+- [x] `HubView` (Displays loaded hero definitions and dynamic text)
+- [x] `SummonButton` (Triggers gacha pulls and updates UI)
+- [x] `RosterView` (Scrollable list displaying owned heroes)
+- [x] `RosterButton` (Toggles the Roster UI panel)
+
+## Core Systems Status
+- [x] Service Locator / Dependency Injection (`ServiceRegistry`)
+- [x] Bootstrapping & Scene Management (`BootInstaller`)
+- [x] Static Data Definitions (ScriptableObjects for Heroes, Skills, Traits)
+- [x] Runtime Data Models (Pure C# instances)
+- [x] Save Data Structure (JSON serializable, Dictionary-free for Unity compatibility)
+- [x] Hero Roster Manager (In-memory collection, event-driven UI updates)
 
 ## Architecture
 - Service Locator pattern, all services registered in `BootInstaller.Awake()`
@@ -32,28 +35,26 @@
 3. `ISaveLoadService`
 4. `IIdleProgressionService`
 5. `IGachaService`
-6. `IDataService` (MonoBehaviour added to BootInstaller GameObject)
+6. `IHeroRosterService`
+7. `IDataService` (MonoBehaviour added to BootInstaller GameObject)
 
-## Not Yet Implemented
-- Real gacha rates / pity system / weighted pulls
-- Hero roster management (view all owned heroes)
-- Combat simulation engine (deterministic)
-- Tower floor generation
-- Idle progression formula
-- Complete UI (roster, combat visuals, tower map)
-- Ascension / synthesis logic
-
-## Next Steps (as planned by advisor)
-1. **Hero Roster Manager** – save pulled heroes, display in scrollable list
-2. **Combat Engine** – deterministic headless simulator with formulas
-3. **Tower Generator** – procedural floor nodes
+## Not Yet Implemented (Roadmap)
+- [ ] **Combat Engine** (Deterministic simulation, turn resolution, headless execution)
+- [ ] **Save Integration** (Hooking `IHeroRosterService` and `GachaService` into `GameSaveData` for persistent storage)
+- [ ] **Idle Progression** (Actual offline calculation formulas)
+- [ ] **Tower Generation** (Procedural floor/node generation)
+- [ ] **Meta Progression** (Master Authority skill tree)
+- [ ] **LiveOps & Monetization** (Remote config, IAP hooks, Ad integrations)
 
 ## Scene Setup Required
 - **Boot.unity**: GameObject "BootLoader" with `BootInstaller` script. Ensure it's scene index 0.
-- **Hub.unity**: Canvas → Text ("displayText") + Button. GameObject "HubUI" with `HubView`. Button has `SummonButton`. Add to Build Settings.
+- **Hub.unity**: Canvas → Text + Button + RosterButton + RosterPanel (with ScrollView). GameObject "HubUI" with `HubView`. Summon button has `SummonButton`. Roster button has `RosterButton`.
 
 ## How to Continue
 - After cloning, run the editor tool to create sample data.
 - All services are accessed via `ServiceRegistry.Resolve<T>()`.
 - New systems should define an interface in `Services/`, implement it, register in `BootInstaller`.
 - Save data uses `GameSaveData`; update migration if schema changes.
+
+---
+*Last Updated: Current Session*
