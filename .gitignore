@@ -1,29 +1,75 @@
-# Unity folders
+# Unity specific
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+*.unityproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendive
+*.VC.db
+*.VC.VC.opendive
+[Bb]uild/
+[Bb]uilds/
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]ser[Ss]ettings/
+[Uu]nityGenerated/
+Assembly-CSharp-Editor.cs.meta
+Assembly-CSharp.cs.meta
+*.log
+*.err
+*.unitypackage
+[Cc]rashlytics/[Bb]uild/
+[Aa]ssets/AssetStoreTools*
 
-# MemoryCaptures
-MemoryCaptures/
-
-# Asset meta data should be tracked
-# *.meta
-
-# Visual Studio / Rider cache directories
-.idea/
-.vs/
-*.csproj
-*.sln
+# Visual Studio
+*.suo
 *.user
 *.userosscache
-*.suo
-*.userprefs
+*.sln.docstates
 
-# OS generated
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+
+# Compiled Binary Files
+*.dll
+*.exe
+*.nupkg
+*.pdb
+*.mdb
+*.pidb
+*.cmake
+*.gcno
+*.gcda
+*.gcov
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -31,4 +77,38 @@ MemoryCaptures/
 .Trashes
 ehthumbs.db
 Thumbs.db
-Desktop.ini
+desktop.ini
+
+# Logs
+*.log
+*.err
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst

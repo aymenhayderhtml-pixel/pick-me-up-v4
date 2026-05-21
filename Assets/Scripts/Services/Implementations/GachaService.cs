@@ -18,6 +18,7 @@ namespace PickMeUp.Services.Implementations
 
         private GachaPityData _pityData;
         private readonly object _lock = new object();
+        private readonly System.Random _rng = new System.Random();
 
         #endregion
 
@@ -36,16 +37,15 @@ namespace PickMeUp.Services.Implementations
         {
             try
             {
-                IDataService dataService = ServiceRegistry.Resolve<IDataService>();
-                IReadOnlyList<HeroDefinition> allHeroes = dataService.GetAllHeroDefinitions();
+                HeroDefinition[] allHeroes = Resources.LoadAll<HeroDefinition>("");
 
-                if (allHeroes == null || allHeroes.Count == 0)
+                if (allHeroes == null || allHeroes.Length == 0)
                 {
                     Debug.LogError("[GachaService] No hero definitions available for summoning");
                     return null;
                 }
 
-                int randomIndex = UnityEngine.Random.Range(0, allHeroes.Count);
+                int randomIndex = _rng.Next(0, allHeroes.Length);
                 HeroDefinition selected = allHeroes[randomIndex];
 
                 HeroInstance instance = new HeroInstance(selected);
@@ -61,6 +61,13 @@ namespace PickMeUp.Services.Implementations
                 catch (Exception rosterEx)
                 {
                     Debug.LogError($"[GachaService] Failed to add hero to roster: {rosterEx.Message}");
+                }
+
+                // Recalculate stats via HeroProgressionService
+                if (ServiceRegistry.HasService<IHeroProgressionService>())
+                {
+                    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
+                    prog.RecalculateStats(instance);
                 }
 
                 TrackPity(bannerId);
