@@ -1,39 +1,124 @@
+// Assets/Scripts/Services/Implementations/GachaService.cs
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using PickMeUp.Core;
 using PickMeUp.Data;
+using PickMeUp.Services;
 
 namespace PickMeUp.Services.Implementations
 {
+    /// <summary>
+    /// Concrete implementation of IGachaService handling summoning mechanics and pity tracking.
+    /// Uses list-based GachaPityData for JSON serialization compatibility.
+    /// </summary>
     public class GachaService : IGachaService
     {
-        public GachaPullResult Pull(GameSaveData saveData)
+        private GachaPityData _pityData;
+        private readonly object _lock = new object();
+
+        public GachaService()
         {
-            var dataService = ServiceRegistry.Resolve<IDataService>();
-            var heroes = dataService.GetHeroDefinitions();
+            InitPity();
+        }
 
-            if (heroes.Count == 0)
+        public HeroInstance Pull(int bannerId)
+        {
+            try
+            {
+                IDataService dataService = ServiceRegistry.Resolve<IDataService>();
+                IReadOnlyList<HeroDefinition> allHeroes = dataService.GetAllHeroDefinitions();
+
+                if (allHeroes == null || allHeroes.Count == 0)
+                {
+                    Debug.LogError("[GachaService] No hero definitions available for summoning");
+                    return null;
+                }
+
+                int randomIndex = UnityEngine.Random.Range(0, allHeroes.Count);
+                HeroDefinition selected = allHeroes[randomIndex];
+
+                HeroInstance instance = new HeroInstance(selected);
+
+                TrackPity(bannerId);
+
+                Debug.Log($"[GachaService] Pulled hero: {instance.HeroDefId} (Banner: {bannerId})");
+                return instance;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GachaService] Pull failed: {ex.Message}");
                 return null;
+            }
+        }
 
-            var randomIndex = Random.Range(0, heroes.Count);
-            var selectedHero = heroes[randomIndex];
-
-            var heroInstance = new HeroInstance
+        public HeroInstance[] PullMultiple(int bannerId, int count)
+        {
+            List<HeroInstance> results = new List<HeroInstance>(count);
+            for (int i = 0; i < count; i++)
             {
-                HeroInstanceId = System.Guid.NewGuid().ToString(),
-                Definition = selectedHero,
-                Level = 1,
-                Experience = 0,
-                CurrentHealth = selectedHero.BaseHealth,
-                AscensionLevel = 0
-            };
+                HeroInstance result = Pull(bannerId);
+                if (result != null)
+                {
+                    results.Add(result);
+                }
+            }
+            return results.ToArray();
+        }
 
-            return new GachaPullResult
+        public void TrackPity(int bannerId)
+        {
+            lock (_lock)
             {
-                PulledHero = heroInstance,
-                PullCount = 1,
-                IsPityBreak = false
-            };
+                BannerPityEntry? existingEntry = _pityData.BannerPityCounters
+                    .FirstOrDefault(e => e.BannerId == bannerId);
+
+                if (existingEntry.HasValue)
+                {
+                    int index = _pityData.BannerPityCounters
+                        .FindIndex(e => e.BannerId == bannerId);
+                    if (index >= 0)
+                    {
+                        BannerPityEntry updated = new BannerPityEntry
+                        {
+                            BannerId = bannerId,
+                            PullCount = existingEntry.Value.PullCount + 1
+                        };
+                        _pityData.BannerPityCounters[index] = updated;
+                    }
+                }
+                else
+                {
+                    _pityData.BannerPityCounters.Add(new BannerPityEntry
+                    {
+                        BannerId = bannerId,
+                        PullCount = 1
+                    });
+                }
+            }
+        }
+
+        public int GetPityCount(int bannerId)
+        {
+            lock (_lock)
+            {
+                BannerPityEntry? entry = _pityData.BannerPityCounters
+                    .FirstOrDefault(e => e.BannerId == bannerId);
+
+                return entry.HasValue ? entry.Value.PullCount : 0;
+            }
+        }
+
+        private void InitPity()
+        {
+            lock (_lock)
+            {
+                if (_pityData == null)
+                {
+                    _pityData = new GachaPityData();
+                }
+            }
         }
     }
 }

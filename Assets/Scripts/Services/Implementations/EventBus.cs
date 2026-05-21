@@ -1,37 +1,85 @@
+// Assets/Scripts/Services/Implementations/EventBus.cs
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+using PickMeUp.Services;
 
 namespace PickMeUp.Services.Implementations
 {
+    /// <summary>
+    /// Concrete implementation of IEventBus using a delegate-based pub/sub pattern.
+    /// Handlers are stored by message type and invoked with error isolation.
+    /// </summary>
     public class EventBus : IEventBus
     {
-        private readonly Dictionary<Type, List<Delegate>> _subscribers = new();
+        private readonly Dictionary<Type, List<Delegate>> _handlers = new Dictionary<Type, List<Delegate>>();
+        private readonly object _lock = new object();
 
-        public void Subscribe<T>(Action<T> handler) where T : class
+        public void Publish<T>(T message)
         {
-            if (handler == null) return;
+            lock (_lock)
+            {
+                Type messageType = typeof(T);
+                if (!_handlers.TryGetValue(messageType, out List<Delegate> handlers) || handlers.Count == 0)
+                {
+                    return;
+                }
 
-            var type = typeof(T);
-            if (!_subscribers.ContainsKey(type))
-                _subscribers[type] = new List<Delegate>();
+                List<Delegate> handlersCopy = new List<Delegate>(handlers);
 
-            _subscribers[type].Add(handler);
+                foreach (Delegate handler in handlersCopy)
+                {
+                    try
+                    {
+                        if (handler is Action<T> action)
+                        {
+                            action.Invoke(message);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"[EventBus] Error invoking handler for {messageType.Name}: {ex.Message}");
+                    }
+                }
+            }
         }
 
-        public void Publish<T>(T eventData) where T : class
+        public void Subscribe<T>(Action<T> handler)
         {
-            var type = typeof(T);
-            if (!_subscribers.ContainsKey(type)) return;
-
-            foreach (var handler in _subscribers[type])
+            if (handler == null)
             {
-                try
+                Debug.LogWarning("[EventBus] Attempted to subscribe null handler");
+                return;
+            }
+
+            lock (_lock)
+            {
+                Type messageType = typeof(T);
+                if (!_handlers.ContainsKey(messageType))
                 {
-                    ((Action<T>)handler)?.Invoke(eventData);
+                    _handlers[messageType] = new List<Delegate>();
                 }
-                catch (Exception ex)
+
+                if (!_handlers[messageType].Contains(handler))
                 {
-                    UnityEngine.Debug.LogError($"Error in event handler: {ex.Message}");
+                    _handlers[messageType].Add(handler);
+                }
+            }
+        }
+
+        public void Unsubscribe<T>(Action<T> handler)
+        {
+            if (handler == null)
+            {
+                return;
+            }
+
+            lock (_lock)
+            {
+                Type messageType = typeof(T);
+                if (_handlers.TryGetValue(messageType, out List<Delegate> handlers))
+                {
+                    handlers.Remove(handler);
                 }
             }
         }
