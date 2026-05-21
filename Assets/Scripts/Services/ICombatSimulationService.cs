@@ -1,7 +1,9 @@
+// Assets/Scripts/Services/ICombatSimulationService.cs
 namespace PickMeUp.Services
 {
     public interface ICombatSimulationService
     {
-        CombatResult SimulateCombat(CombatInput input);
+        CombatResult Simulate(CombatInput input);
+        CombatResult RunHeadless(CombatInput input);
     }
 }
