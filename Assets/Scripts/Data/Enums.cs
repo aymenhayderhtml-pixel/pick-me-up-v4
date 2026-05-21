@@ -6,16 +6,15 @@ namespace PickMeUp.Data
         Boot,
         Hub,
         Combat,
-        Tower,
         Saving
     }
 
     public enum ElementType
     {
+        None,
         Fire,
         Water,
-        Earth,
-        Wind,
+        Wood,
         Light,
         Dark
     }
@@ -23,18 +22,15 @@ namespace PickMeUp.Data
     public enum ClassType
     {
         Vanguard,
-        Sniper,
-        Support,
-        Mage,
-        Tank
+        Striker,
+        Caster,
+        Tactician,
+        Ranger
     }
 
     public enum SkillType
     {
         Active,
-        Passive,
-        Buff,
-        Debuff,
-        Damage
+        Passive
     }
 }
