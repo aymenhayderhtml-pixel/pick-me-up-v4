@@ -10,23 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3ae0ea2c0f4b2d4c875883e9cdd6c3d, type: 3}
-  m_Name: Champion
+  m_Name: hero_antaris
   m_EditorClassIdentifier: 
-  _heroId: hero_champion
-  _heroName: Champion
+  _heroId: hero_antaris
+  _heroName: Antaris
   _portrait: {fileID: 0}
-  _heroFlavorText: 
-  _element: 1
-  _classType: 0
+  _heroFlavorText: A novice priest. His healing light is just a spark.
+  _element: 4
+  _classType: 2
   _baseStar: 1
   _maxLevelPerStar: 0a000000140000001e00000028000000320000003c00000046000000
-  _baseHP: 100
-  _baseATK: 20
-  _baseDEF: 15
-  _baseSPD: 10
+  _baseHP: 120
+  _baseATK: 14
+  _baseDEF: 10
+  _baseSPD: 12
   _baseCritRate: 500
   _baseCritDmg: 15000
-  _skills:
-  - _skill: {fileID: 11400000, guid: 34280c558a953c74dba6a63230842808, type: 2}
-    _unlockLevel: 1
+  _skills: []
   _possibleTraits: []

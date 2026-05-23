@@ -99,13 +99,8 @@ namespace PickMeUp.UI
                                $"HP: {pulledHero.MaxHP} | ATK: {pulledHero.ATK}\n" +
                                $"Morale: {pulledHero.Morale / 100}%";
             
-            UpdateDisplayText(resultText);
-            
-            // Refresh the main hub view to update the total hero count
-            if (hubView != null)
-            {
-                hubView.RefreshHeroDisplay();
-            }
+                        // Show the new hero and update the count without overwriting it back to the Hub default
+            if (hubView != null) hubView.ShowSummonResult(pulledHero);
         }
 
         #endregion

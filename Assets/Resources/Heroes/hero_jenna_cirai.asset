@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ae0ea2c0f4b2d4c875883e9cdd6c3d, type: 3}
+  m_Name: hero_jenna_cirai
+  m_EditorClassIdentifier: 
+  _heroId: hero_jenna_cirai
+  _heroName: Jenna Cirai
+  _portrait: {fileID: 0}
+  _heroFlavorText: The early version of the sharpshooter. Needs training to reach
+    her true potential.
+  _element: 2
+  _classType: 4
+  _baseStar: 1
+  _maxLevelPerStar: 0a000000140000001e00000028000000320000003c00000046000000
+  _baseHP: 120
+  _baseATK: 14
+  _baseDEF: 10
+  _baseSPD: 12
+  _baseCritRate: 800
+  _baseCritDmg: 16000
+  _skills: []
+  _possibleTraits: []

@@ -30,10 +30,8 @@ namespace PickMeUp.UI
         private void LoadHeroData()
         {
             if (_dataService == null) return;
-
             IReadOnlyList<HeroDefinition> heroes = _dataService.GetAllHeroDefinitions();
             if (heroes == null) return;
-
             _cachedHeroes.Clear();
             _cachedHeroes.AddRange(heroes);
         }
@@ -42,28 +40,32 @@ namespace PickMeUp.UI
         {
             if (displayText == null) return;
 
-            // FIX: Get the actual owned hero count from the Roster Service
             int ownedHeroCount = 0;
+            int highestFloor = 0;
+            int gold = 0;
+
             if (ServiceRegistry.HasService<IHeroRosterService>())
-            {
                 ownedHeroCount = ServiceRegistry.Resolve<IHeroRosterService>().GetHeroCount();
-            }
 
-            if (_cachedHeroes.Count == 0)
+            if (ServiceRegistry.HasService<ISaveLoadService>())
             {
-                displayText.text = "No hero definitions loaded.\nRun Tools > PickMeUp > Create Sample Data";
-                return;
+                var save = ServiceRegistry.Resolve<ISaveLoadService>().Load();
+                highestFloor = save.HighestFloorCleared;
+                gold = save.Gold;
             }
 
-            HeroDefinition firstHero = _cachedHeroes[0];
-            
-            // FIX: Removed the overwrite that was forcing it to say 1
-            string heroInfo = $"Total Heroes Owned: {ownedHeroCount}\n" +
-                              $"(Templates Loaded: {_cachedHeroes.Count})\n\n" +
-                              $"Featured Template:\n" +
-                              $"Name: {firstHero.HeroName}\n" +
-                              $"Element: {firstHero.Element} | Class: {firstHero.ClassType}\n" +
-                              $"Base HP: {firstHero.BaseHP} | Base ATK: {firstHero.BaseATK}";
+            string heroInfo = $"=== TOWNIA HUB ===\n" +
+                              $"Heroes Owned: {ownedHeroCount}\n" +
+                              $"Highest Floor: {highestFloor}\n" +
+                              $"Gold: {gold}\n\n";
+
+            if (_cachedHeroes.Count > 0)
+            {
+                HeroDefinition firstHero = _cachedHeroes[0];
+                heroInfo += $"Featured Template:\n" +
+                            $"{firstHero.HeroName} ({firstHero.Element} {firstHero.ClassType})\n" +
+                            $"Base HP: {firstHero.BaseHP} | ATK: {firstHero.BaseATK}";
+            }
             
             displayText.text = heroInfo;
         }
@@ -72,7 +74,38 @@ namespace PickMeUp.UI
         {
             if (displayText != null) displayText.text = text;
         }
+        public void ShowSummonResult(HeroInstance hero)
+        {
+            if (displayText == null || hero == null) return;
 
+            // Fetch the actual name from the database
+            string heroName = hero.HeroDefId;
+            string element = "None";
+            string cls = "None";
+
+            if (_dataService != null)
+            {
+                var def = _dataService.GetHeroDefinition(hero.HeroDefId);
+                if (def != null)
+                {
+                    heroName = def.HeroName;
+                    element = def.Element.ToString();
+                    cls = def.ClassType.ToString();
+                }
+            }
+
+            int ownedCount = ServiceRegistry.HasService<IHeroRosterService>() 
+                ? ServiceRegistry.Resolve<IHeroRosterService>().GetHeroCount() 
+                : 0;
+
+            string resultText = $"★ NEW HERO ACQUIRED ★\n\n" +
+                                $"{hero.CurrentStar}★ {heroName}\n" +
+                                $"Element: {element} | Class: {cls}\n" +
+                                $"HP: {hero.MaxHP} | ATK: {hero.ATK}\n\n" +
+                                $"Total Heroes Owned: {ownedCount}";
+
+            displayText.text = resultText;
+        }
         public void RefreshHeroDisplay()
         {
             LoadHeroData();

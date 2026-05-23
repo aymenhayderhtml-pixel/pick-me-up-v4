@@ -36,28 +36,24 @@ namespace PickMeUp.UI
             if (SynthesizeButton != null) SynthesizeButton.onClick.RemoveListener(OnSynthesizeClicked);
         }
 
-                public void Show()
+        public void Show()
         {
             if (panelRoot != null) panelRoot.SetActive(true);
             
+            // FIX: Keep Roster active in the background so cards stay visible above the sheet
             if (rosterView != null) 
             {
-                rosterView.gameObject.SetActive(true); 
-                
-                // CRITICAL FIX: Brings Roster to the absolute front of the Canvas hierarchy
-                // so the Synthesis panel cannot block its clicks.
-                rosterView.transform.SetAsLastSibling(); 
-                
-                rosterView.Show(); 
+                rosterView.gameObject.SetActive(true);
+                rosterView.transform.SetAsFirstSibling(); // Puts Roster BEHIND Synthesis panel
             }
             
-            UpdateStatusText("Select 2 (60% chance) or 3 (100% chance) heroes of the same star level.");
+            UpdateStatusText("Select 2 or 3 heroes to fuse...");
         }
 
         public void Hide()
         {
+            // Only close the Synthesis sheet. Leave Roster open so it doesn't feel jarring.
             if (panelRoot != null) panelRoot.SetActive(false);
-            if (rosterView != null) rosterView.gameObject.SetActive(false);
         }
 
         private void OnSynthesizeClicked()
@@ -66,7 +62,6 @@ namespace PickMeUp.UI
 
             List<HeroInstance> selected = rosterView.GetSelectedHeroes();
             
-            // DEBUG: Prove how many heroes were actually passed
             Debug.Log($"<color=yellow>[SynthesisView] Attempting synthesis with {selected.Count} heroes.</color>");
 
             if (!_synthesisService.CanSynthesize(selected, out string error))

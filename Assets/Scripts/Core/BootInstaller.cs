@@ -102,7 +102,21 @@ TimeSpan timeAway = DateTime.UtcNow - lastLogin;
             ServiceRegistry.Resolve<ISaveLoadService>().Save(save);
         }
 
-        private void OnApplicationPause(bool pauseStatus) { if (pauseStatus) SaveCurrentState(ServiceRegistry.Resolve<ISaveLoadService>().Load()); }
-        private void OnApplicationQuit() { SaveCurrentState(ServiceRegistry.Resolve<ISaveLoadService>().Load()); ServiceRegistry.Clear(); }
-    }
+                private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus && ServiceRegistry.HasService<ISaveLoadService>())
+            {
+                SaveCurrentState(ServiceRegistry.Resolve<ISaveLoadService>().Load());
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            // FIX: Only save if services are still active to prevent shutdown crashes
+            if (ServiceRegistry.HasService<ISaveLoadService>())
+            {
+                SaveCurrentState(ServiceRegistry.Resolve<ISaveLoadService>().Load());
+            }
+            ServiceRegistry.Clear();
+        } }
 }
