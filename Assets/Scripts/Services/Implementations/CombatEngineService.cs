@@ -1,4 +1,3 @@
-// Assets/Scripts/Services/Implementations/CombatEngineService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +37,7 @@ namespace PickMeUp.Services.Implementations
                 Enemies = ConvertToCombatUnits(enemyParty, dataService, false)
             };
 
-            RunCombatLoop(snapshot, new Random(seed));
+            RunCombatLoop(snapshot, new System.Random(seed));
             return snapshot;
         }
 
@@ -46,12 +45,8 @@ namespace PickMeUp.Services.Implementations
         {
             if (snapshot.IsComplete) return snapshot;
             
-            // Recreate the RNG state. 
-            // Note: For true mid-battle resumption, RNG state would need to be serialized.
-            // For MVP, we re-seed. A production system would use a serializable PRNG state.
-            Random random = new Random(snapshot.Seed); 
+            System.Random random = new System.Random(snapshot.Seed); 
             
-            // Fast-forward RNG to current turn to maintain determinism if resuming
             for (int i = 0; i < snapshot.TurnCount; i++) random.Next();
 
             RunCombatLoop(snapshot, random);
@@ -62,7 +57,7 @@ namespace PickMeUp.Services.Implementations
 
         #region Combat Loop
 
-        private void RunCombatLoop(CombatSnapshot snapshot, Random random)
+        private void RunCombatLoop(CombatSnapshot snapshot, System.Random random)
         {
             while (!snapshot.IsComplete && snapshot.TurnCount < MAX_TURNS)
             {
@@ -73,18 +68,15 @@ namespace PickMeUp.Services.Implementations
                 {
                     if (!unit.IsAlive || snapshot.IsComplete) continue;
 
-                    // Reduce cooldowns
                     foreach (var skill in unit.Skills)
                     {
                         if (skill.CooldownCurrent > 0) skill.CooldownCurrent--;
                     }
 
-                    // Select Target (Prioritize front row)
                     List<CombatUnit> enemies = unit.IsHero ? snapshot.Enemies : snapshot.Heroes;
                     CombatUnit target = SelectTarget(enemies);
                     if (target == null) continue;
 
-                    // Select Action
                     CombatSkillState usedSkill = null;
                     float multiplier = BASIC_ATTACK_MULTIPLIER;
 
@@ -106,7 +98,6 @@ namespace PickMeUp.Services.Implementations
                         }
                     }
 
-                    // If no skill used, basic attack generates energy
                     if (usedSkill == null)
                     {
                         var energySkill = unit.Skills?.FirstOrDefault(s => s.Type == SkillType.Active);
@@ -116,20 +107,17 @@ namespace PickMeUp.Services.Implementations
                         }
                     }
 
-                    // Resolve Damage
                     int damage = CombatFormulas.CalculateDamage(unit, target, multiplier, random);
                     target.CurrentHP = Math.Max(0, target.CurrentHP - damage);
 
                     string actionName = usedSkill != null ? usedSkill.SkillId : "Basic Attack";
                     LogEvent(snapshot, $"{unit.Name} hits {target.Name} with {actionName} for {damage} damage.", CombatEventType.Damage);
 
-                    // Check Death
                     if (!target.IsAlive)
                     {
                         LogEvent(snapshot, $"{target.Name} has been defeated.", CombatEventType.Death);
                     }
 
-                    // Check Win/Loss
                     if (CheckVictory(snapshot))
                     {
                         snapshot.IsComplete = true;
@@ -148,11 +136,10 @@ namespace PickMeUp.Services.Implementations
                 }
             }
 
-            // Failsafe for max turns reached
             if (!snapshot.IsComplete)
             {
                 snapshot.IsComplete = true;
-                snapshot.IsVictory = false; // Timeout counts as defeat
+                snapshot.IsVictory = false; 
                 LogEvent(snapshot, "Battle timed out. Defeat.", CombatEventType.Defeat);
             }
         }
@@ -161,7 +148,7 @@ namespace PickMeUp.Services.Implementations
 
         #region Helper Methods
 
-        private List<CombatUnit> BuildTurnOrder(CombatSnapshot snapshot, Random random)
+        private List<CombatUnit> BuildTurnOrder(CombatSnapshot snapshot, System.Random random)
         {
             List<CombatUnit> allAliveUnits = new List<CombatUnit>();
             allAliveUnits.AddRange(snapshot.Heroes.Where(h => h.IsAlive));
@@ -175,7 +162,6 @@ namespace PickMeUp.Services.Implementations
             var aliveEnemies = enemies.Where(e => e.IsAlive).ToList();
             if (!aliveEnemies.Any()) return null;
 
-            // Target front row (Position 0) first
             var frontRow = aliveEnemies.Where(e => e.Position == 0).ToList();
             return frontRow.Any() ? frontRow.First() : aliveEnemies.First();
         }
@@ -223,13 +209,12 @@ namespace PickMeUp.Services.Implementations
                     CritDmg = inst.CritDmg,
                     Element = def != null ? def.Element : ElementType.None,
                     ClassType = def != null ? def.ClassType : ClassType.Striker,
-                    Position = i < 2 ? 0 : 1, // First 2 are front row, rest back row
+                    Position = i < 2 ? 0 : 1, 
                     IsHero = isHero,
                     Skills = new List<CombatSkillState>(),
                     Traits = new List<CombatTraitState>()
                 };
 
-                // Map Skills
                 if (inst.EquippedSkills != null)
                 {
                     foreach (var skillState in inst.EquippedSkills)
@@ -244,8 +229,8 @@ namespace PickMeUp.Services.Implementations
                                 CooldownMax = skillDef.CooldownTurns,
                                 CooldownCurrent = 0,
                                 EnergyMax = skillDef.EnergyCost,
-                                EnergyCurrent = 0, // Start with 0 energy, basic attacks generate it
-                                PowerMultiplier = 1.5f // Default MVP multiplier
+                                EnergyCurrent = 0, 
+                                PowerMultiplier = 1.5f 
                             });
                         }
                     }

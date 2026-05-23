@@ -1,15 +1,9 @@
-// Assets/Scripts/Services/ServiceModels.cs
 using System;
 using System.Collections.Generic;
 using PickMeUp.Data;
 
 namespace PickMeUp.Services
 {
-    /// <summary>
-    /// Placeholder models used as inputs/outputs for service interfaces.
-    /// These will be fully fleshed out during the implementation phase.
-    /// </summary>
-
     [Serializable]
     public class CombatInput
     {
@@ -32,11 +26,16 @@ namespace PickMeUp.Services
         public List<string> Events;
     }
 
+    /// <summary>
+    /// Contains the calculated rewards from offline progression.
+    /// </summary>
     [Serializable]
     public class IdleReward
     {
         public int GoldEarned;
         public int XpEarned;
+        public int FloorsCleared;
+        public int FinalFloorReached;
         public TimeSpan TimeSimulated;
     }
 

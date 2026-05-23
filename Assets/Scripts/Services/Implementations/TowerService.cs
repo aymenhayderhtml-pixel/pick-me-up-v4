@@ -1,4 +1,3 @@
-// Assets/Scripts/Services/Implementations/TowerService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,23 +8,13 @@ using PickMeUp.Services;
 
 namespace PickMeUp.Services.Implementations
 {
-    /// <summary>
-    /// Concrete implementation of the tower generation and management service.
-    /// </summary>
     public class TowerService : ITowerService
     {
-        #region Fields
-
         private TowerRunState _activeRun;
         private TowerEnemyDatabase _enemyDatabase;
 
-        #endregion
-
-        #region Constructor
-
         public TowerService()
         {
-            // Load enemy database from Resources
             _enemyDatabase = Resources.Load<TowerEnemyDatabase>("TowerEnemyDatabase");
             if (_enemyDatabase == null)
             {
@@ -33,13 +22,9 @@ namespace PickMeUp.Services.Implementations
             }
         }
 
-        #endregion
-
-        #region ITowerService Implementation
-
         public TowerRunState StartNewRun(List<HeroInstance> party, int startingFloor)
         {
-            int seed = Environment.TickCount; // Base seed for the run
+            int seed = Environment.TickCount; 
             
             _activeRun = new TowerRunState
             {
@@ -56,7 +41,7 @@ namespace PickMeUp.Services.Implementations
 
         public TowerFloorData GenerateFloor(int floorLevel, int seed)
         {
-            Random rng = new Random(seed + floorLevel);
+            System.Random rng = new System.Random(seed + floorLevel);
             TowerFloorData floor = new TowerFloorData
             {
                 FloorLevel = floorLevel,
@@ -91,7 +76,7 @@ namespace PickMeUp.Services.Implementations
 
         public TowerNode GenerateNode(int floorLevel, TowerNodeType type, int seed)
         {
-            Random rng = new Random(seed);
+            System.Random rng = new System.Random(seed);
             TowerNode node = new TowerNode
             {
                 NodeId = seed,
@@ -105,7 +90,7 @@ namespace PickMeUp.Services.Implementations
 
             if (type == TowerNodeType.Combat || type == TowerNodeType.Elite || type == TowerNodeType.Boss)
             {
-                int enemyCount = rng.Next(1, 5); // 1 to 4 enemies
+                int enemyCount = rng.Next(1, 5); 
                 node.Enemies = GenerateEnemies(floorLevel, enemyCount, rng.Next());
 
                 if (type == TowerNodeType.Elite)
@@ -121,7 +106,6 @@ namespace PickMeUp.Services.Implementations
                 {
                     foreach (var e in node.Enemies)
                     {
-                        // 2.0x stat multiplier and +50% HP (total 3.0x HP)
                         e.MaxHP = (int)(e.MaxHP * 3.0f); e.CurrentHP = e.MaxHP;
                         e.ATK = (int)(e.ATK * 2.0f); 
                         e.DEF = (int)(e.DEF * 2.0f);
@@ -146,7 +130,7 @@ namespace PickMeUp.Services.Implementations
                 foreach (var hero in runState.ActiveParty)
                 {
                     hero.CurrentHP = Math.Min(hero.MaxHP, hero.CurrentHP + (int)(hero.MaxHP * 0.3f));
-                    hero.Morale = Math.Min(10000, hero.Morale + 2000); // +20% morale
+                    hero.Morale = Math.Min(10000, hero.Morale + 2000); 
                 }
                 return new CombatSnapshot 
                 { 
@@ -174,14 +158,29 @@ namespace PickMeUp.Services.Implementations
             runState.TotalGoldEarned += node.GoldReward;
             runState.TotalXpEarned += node.XpReward;
 
-            // Check if all nodes on the current floor are cleared
             if (runState.CurrentFloorData.Nodes.All(n => n.IsCleared))
             {
                 runState.CurrentFloorData.IsCleared = true;
                 runState.CompletedFloors.Add(runState.CurrentFloorData);
                 runState.CurrentFloor++;
                 
-                // Generate next floor
+                // SAVE PROGRESS: Update highest floor cleared
+                try
+                {
+                    var saveService = ServiceRegistry.Resolve<ISaveLoadService>();
+                    var save = saveService.Load();
+                    if (runState.CurrentFloor - 1 > save.HighestFloorCleared)
+                    {
+                        save.HighestFloorCleared = runState.CurrentFloor - 1;
+                        saveService.Save(save);
+                        Debug.Log($"[TowerService] New highest floor saved: {save.HighestFloorCleared}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[TowerService] Failed to save floor progress: {ex.Message}");
+                }
+
                 runState.CurrentFloorData = GenerateFloor(runState.CurrentFloor, runState.RunSeed);
                 Debug.Log($"[TowerService] Floor cleared! Advancing to floor {runState.CurrentFloor}.");
             }
@@ -189,12 +188,12 @@ namespace PickMeUp.Services.Implementations
 
         public List<HeroInstance> GenerateEnemies(int floorLevel, int count, int seed)
         {
-            Random rng = new Random(seed);
+            System.Random rng = new System.Random(seed);
             List<HeroInstance> enemies = new List<HeroInstance>();
-            IDataService dataService = ServiceRegistry.Resolve<IDataService>();
-
-            List<TowerEnemyTemplate> validTemplates = new List<TowerEnemyTemplate>();
             
+            var allDefs = Resources.LoadAll<HeroDefinition>("");
+            List<TowerEnemyTemplate> validTemplates = new List<TowerEnemyTemplate>();
+
             if (_enemyDatabase != null && _enemyDatabase.EnemyTemplates != null && _enemyDatabase.EnemyTemplates.Count > 0)
             {
                 validTemplates = _enemyDatabase.EnemyTemplates
@@ -205,9 +204,7 @@ namespace PickMeUp.Services.Implementations
             }
             else
             {
-                // Fallback: create dummy templates from all heroes
-                var allHeroes = dataService.GetAllHeroDefinitions();
-                foreach (var h in allHeroes)
+                foreach (var h in allDefs)
                 {
                     validTemplates.Add(new TowerEnemyTemplate { HeroDefId = h.HeroId, SpawnWeight = 1.0f, StatMultiplier = 1.0f });
                 }
@@ -230,12 +227,11 @@ namespace PickMeUp.Services.Implementations
                     }
                 }
 
-                HeroDefinition def = dataService.GetHeroDefinition(selected.HeroDefId);
+                HeroDefinition def = allDefs.FirstOrDefault(h => h.HeroId == selected.HeroDefId);
                 if (def == null) continue;
 
                 HeroInstance enemy = new HeroInstance(def);
                 
-                // Scale stats by template multiplier and floor level
                 float scale = selected.StatMultiplier + (floorLevel * 0.1f);
                 enemy.MaxHP = (int)(enemy.MaxHP * scale);
                 enemy.CurrentHP = enemy.MaxHP;
@@ -266,7 +262,5 @@ namespace PickMeUp.Services.Implementations
                 _activeRun = null;
             }
         }
-
-        #endregion
     }
 }

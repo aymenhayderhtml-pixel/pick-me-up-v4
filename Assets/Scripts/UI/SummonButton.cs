@@ -95,7 +95,7 @@ namespace PickMeUp.UI
             
             string resultText = $"★ New Hero Acquired! ★\n\n" +
                                $"Name: {pulledHero.HeroDefId}\n" +
-                               $"Level: {pulledHero.Level}\n" +
+                               $"Level: {pulledHero.CurrentLevel}\n" +
                                $"HP: {pulledHero.MaxHP} | ATK: {pulledHero.ATK}\n" +
                                $"Morale: {pulledHero.Morale / 100}%";
             

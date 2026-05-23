@@ -1,4 +1,3 @@
-// Assets/Scripts/Services/Implementations/GachaService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,48 +8,32 @@ using PickMeUp.Services;
 
 namespace PickMeUp.Services.Implementations
 {
-    /// <summary>
-    /// Concrete implementation of IGachaService handling summoning mechanics and pity tracking.
-    /// </summary>
     public class GachaService : IGachaService
     {
-        #region Fields
-
         private GachaPityData _pityData;
         private readonly object _lock = new object();
-        private readonly System.Random _rng = new System.Random();
-
-        #endregion
-
-        #region Constructor
+        private readonly System.Random _rng = new System.Random(Environment.TickCount);
 
         public GachaService()
         {
             InitPity();
         }
 
-        #endregion
-
-        #region IGachaService Implementation
-
         public HeroInstance Pull(int bannerId)
         {
             try
             {
-                HeroDefinition[] allHeroes = Resources.LoadAll<HeroDefinition>("");
-
-                if (allHeroes == null || allHeroes.Length == 0)
+                var allDefs = Resources.LoadAll<HeroDefinition>("");
+                if (allDefs == null || allDefs.Length == 0)
                 {
-                    Debug.LogError("[GachaService] No hero definitions available for summoning");
+                    Debug.LogError("[GachaService] No hero definitions found in Resources!");
                     return null;
                 }
 
-                int randomIndex = _rng.Next(0, allHeroes.Length);
-                HeroDefinition selected = allHeroes[randomIndex];
-
+                // MVP: Simple random selection
+                HeroDefinition selected = allDefs[_rng.Next(allDefs.Length)];
                 HeroInstance instance = new HeroInstance(selected);
                 
-                // Auto-save to roster
                 try
                 {
                     if (ServiceRegistry.HasService<IHeroRosterService>())
@@ -63,15 +46,7 @@ namespace PickMeUp.Services.Implementations
                     Debug.LogError($"[GachaService] Failed to add hero to roster: {rosterEx.Message}");
                 }
 
-                // Recalculate stats via HeroProgressionService
-                if (ServiceRegistry.HasService<IHeroProgressionService>())
-                {
-                    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
-                    prog.RecalculateStats(instance);
-                }
-
                 TrackPity(bannerId);
-
                 Debug.Log($"[GachaService] Pulled hero: {instance.HeroDefId} (Banner: {bannerId})");
                 return instance;
             }
@@ -88,10 +63,7 @@ namespace PickMeUp.Services.Implementations
             for (int i = 0; i < count; i++)
             {
                 HeroInstance result = Pull(bannerId);
-                if (result != null)
-                {
-                    results.Add(result);
-                }
+                if (result != null) results.Add(result);
             }
             return results.ToArray();
         }
@@ -100,31 +72,24 @@ namespace PickMeUp.Services.Implementations
         {
             lock (_lock)
             {
-                BannerPityEntry? existingEntry = _pityData.BannerPityCounters
-                    .FirstOrDefault(e => e.BannerId == bannerId);
+                var existingEntry = _pityData.BannerPityCounters.FirstOrDefault(e => e.BannerId == bannerId);
 
-                if (existingEntry.HasValue)
+                if (existingEntry.BannerId == bannerId) // Struct default is 0, so this works if bannerId is 0, but let's be safe
                 {
-                    int index = _pityData.BannerPityCounters
-                        .FindIndex(e => e.BannerId == bannerId);
+                    int index = _pityData.BannerPityCounters.FindIndex(e => e.BannerId == bannerId);
                     if (index >= 0)
                     {
-                        BannerPityEntry updated = new BannerPityEntry
-                        {
-                            BannerId = bannerId,
-                            PullCount = existingEntry.Value.PullCount + 1
-                        };
+                        var updated = _pityData.BannerPityCounters[index];
+                        updated.PullCount++;
                         _pityData.BannerPityCounters[index] = updated;
                     }
                 }
                 else
                 {
-                    _pityData.BannerPityCounters.Add(new BannerPityEntry
-                    {
-                        BannerId = bannerId,
-                        PullCount = 1
-                    });
+                    _pityData.BannerPityCounters.Add(new BannerPityEntry { BannerId = bannerId, PullCount = 1 });
                 }
+                
+                SaveState(); // Persist pity to disk
             }
         }
 
@@ -132,28 +97,42 @@ namespace PickMeUp.Services.Implementations
         {
             lock (_lock)
             {
-                BannerPityEntry? entry = _pityData.BannerPityCounters
-                    .FirstOrDefault(e => e.BannerId == bannerId);
-                
-                return entry.HasValue ? entry.Value.PullCount : 0;
+                var entry = _pityData.BannerPityCounters.FirstOrDefault(e => e.BannerId == bannerId);
+                return entry.PullCount;
             }
         }
-
-        #endregion
-
-        #region Private Methods
 
         private void InitPity()
         {
             lock (_lock)
             {
-                if (_pityData == null)
+                try
+                {
+                    var saveService = ServiceRegistry.Resolve<ISaveLoadService>();
+                    var save = saveService.Load();
+                    _pityData = save.Pity ?? new GachaPityData();
+                    Debug.Log("[GachaService] Loaded pity data from save file.");
+                }
+                catch
                 {
                     _pityData = new GachaPityData();
                 }
             }
         }
 
-        #endregion
+        private void SaveState()
+        {
+            try
+            {
+                var saveService = ServiceRegistry.Resolve<ISaveLoadService>();
+                var save = saveService.Load();
+                save.Pity = _pityData;
+                saveService.Save(save);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GachaService] Failed to save pity: {ex.Message}");
+            }
+        }
     }
 }

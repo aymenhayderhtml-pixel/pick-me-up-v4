@@ -1,12 +1,13 @@
 // Assets/Scripts/Data/HeroInstance.cs
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace PickMeUp.Data
 {
     /// <summary>
     /// Represents a specific, owned instance of a hero in the player's roster.
-    /// Contains runtime progression data (level, XP, ascension) separate from the static definition.
+    /// Contains runtime progression data separate from the static definition.
     /// </summary>
     [Serializable]
     public class HeroInstance
@@ -27,7 +28,7 @@ namespace PickMeUp.Data
         public int CurrentHP;
         public int Morale; // 0 to 10000 (basis points)
 
-        // Calculated runtime stats (base + level/ascension scaling)
+        // Calculated runtime stats
         public int MaxHP;
         public int ATK;
         public int DEF;
@@ -37,6 +38,11 @@ namespace PickMeUp.Data
 
         public List<SkillState> EquippedSkills;
         public List<TraitState> ActiveTraits;
+
+        /// <summary>
+        /// Runtime cache for the ScriptableObject definition. Not serialized to JSON.
+        /// </summary>
+        [NonSerialized] public HeroDefinition CachedDefinition;
 
         #endregion
 
@@ -53,9 +59,7 @@ namespace PickMeUp.Data
 
         /// <summary>
         /// Creates a new HeroInstance based on a static HeroDefinition.
-        /// Copies base stats and initializes default state.
         /// </summary>
-        /// <param name="definition">The static template to base this instance on.</param>
         public HeroInstance(HeroDefinition definition) : this()
         {
             InstanceId = Guid.NewGuid().ToString();
@@ -76,17 +80,10 @@ namespace PickMeUp.Data
             ATK = definition.BaseATK;
             DEF = definition.BaseDEF;
             SPD = definition.BaseSPD;
-            
-            // Apply star multiplier: higher base stars have better stats even at level 1
-            float starMultiplier = (float)System.Math.Pow(1.4, definition.BaseStar - 1);
-            MaxHP = (int)(definition.BaseHP * starMultiplier);
-            CurrentHP = MaxHP;
-            ATK = (int)(definition.BaseATK * starMultiplier);
-            DEF = (int)(definition.BaseDEF * starMultiplier);
-            SPD = (int)(definition.BaseSPD * starMultiplier);
-            // CritRate and CritDmg remain flat from definition
             CritRate = definition.BaseCritRate;
             CritDmg = definition.BaseCritDmg;
+
+            CachedDefinition = definition;
 
             // Initialize skills based on definition
             foreach (var skillRef in definition.Skills)

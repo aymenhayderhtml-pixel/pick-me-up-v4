@@ -1,4 +1,3 @@
-// Assets/Scripts/Data/GameSaveData.cs
 using System;
 using System.Collections.Generic;
 
@@ -42,7 +41,6 @@ namespace PickMeUp.Data
 
     /// <summary>
     /// Tracks the pity counters and guarantee states for various gacha banners.
-    /// Uses serializable lists instead of dictionaries for JSON compatibility.
     /// </summary>
     [Serializable]
     public class GachaPityData
@@ -110,6 +108,14 @@ namespace PickMeUp.Data
 
         #endregion
 
+        #region Offline State
+
+        public long LastLoginTicks;
+        public int OfflineFloorLevel;
+        public List<HeroInstance> OfflinePartySnapshot;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -121,6 +127,7 @@ namespace PickMeUp.Data
             Master = new MasterAuthorityData();
             Pity = new GachaPityData();
             SynthesisHistory = new List<SynthesisLogEntry>();
+            OfflinePartySnapshot = new List<HeroInstance>();
             Timestamp = DateTime.UtcNow.ToString("o");
         }
 
