@@ -56,7 +56,7 @@ namespace PickMeUp.Core
             }
 
             DateTime lastLogin = new DateTime(save.LastLoginTicks);
-TimeSpan timeAway = TimeSpan.FromHours(8);
+TimeSpan timeAway = DateTime.UtcNow - lastLogin;
             if (timeAway.TotalMinutes < 1) 
             {
                 SaveCurrentState(save); // Less than 1 minute, ignore
