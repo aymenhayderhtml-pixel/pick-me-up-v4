@@ -1,146 +1,75 @@
-// Assets/Scripts/Services/Implementations/HeroProgressionService.cs
 using System;
-using System.Linq;
-using UnityEngine;
-using PickMeUp.Data;
 using PickMeUp.Core;
+using PickMeUp.Data;
 
 namespace PickMeUp.Services.Implementations
 {
-    /// <summary>
-    /// Concrete implementation of hero progression, handling the exponential power curves
-    /// that define the gap between star tiers in the manhwa.
-    /// </summary>
     public class HeroProgressionService : IHeroProgressionService
     {
-        #region Events
-
-        public event Action<HeroInstance, int> OnHeroLevelUp;
-
-        #endregion
-
-        #region IHeroProgressionService Implementation
-
-        public long GetXPRequiredForLevel(int star, int currentLevel)
+        public bool CanLevelUp(HeroInstance hero, out int goldCost)
         {
-            long baseXP = 100 * star;
-            float levelMultiplier = Mathf.Pow(1.15f, currentLevel);
-            return (long)(baseXP * levelMultiplier);
+            goldCost = 0;
+            var def = ServiceRegistry.Resolve<IDataService>().GetHeroDefinition(hero.HeroDefId);
+            if (def == null) return false;
+
+            int maxLvl = GetMaxLevelForStar(hero.CurrentStar, def);
+            if (hero.CurrentLevel >= maxLvl) return false;
+
+            int xpNeeded = hero.CurrentLevel * 100 * hero.CurrentStar;
+            if (hero.CurrentXP < xpNeeded) return false;
+
+            goldCost = hero.CurrentLevel * 50 * hero.CurrentStar;
+            var save = ServiceRegistry.Resolve<ISaveLoadService>().Load();
+            if (save.Gold < goldCost) return false;
+
+            return true;
         }
 
-        public void AddXP(HeroInstance hero, long xp)
+        public bool LevelUp(HeroInstance hero)
         {
-            if (hero == null || xp <= 0) return;
+            var def = ServiceRegistry.Resolve<IDataService>().GetHeroDefinition(hero.HeroDefId);
+            if (def == null || !CanLevelUp(hero, out int cost)) return false;
 
-            HeroDefinition definition = GetDefinition(hero);
-            if (definition == null) return;
+            int xpNeeded = hero.CurrentLevel * 100 * hero.CurrentStar;
+            hero.CurrentXP -= xpNeeded;
+            hero.CurrentLevel++;
 
-            hero.CurrentXP += xp;
-            int maxLevel = definition.MaxLevelPerStar[hero.CurrentStar - 1];
+            var save = ServiceRegistry.Resolve<ISaveLoadService>().Load();
+            save.Gold -= cost;
+            ServiceRegistry.Resolve<ISaveLoadService>().Save(save);
 
-            bool leveledUp = true;
-            while (leveledUp)
-            {
-                leveledUp = TryLevelUp(hero);
-            }
-
-            // Cap XP if at max level for the current star tier
-            if (hero.CurrentLevel >= maxLevel)
-            {
-                long maxXP = GetXPRequiredForLevel(hero.CurrentStar, hero.CurrentLevel) - 1;
-                if (maxXP < 0) maxXP = 0;
-                if (hero.CurrentXP > maxXP)
-                {
-                    hero.CurrentXP = maxXP;
-                }
-            }
+            UpdateStats(hero, def);
+            return true;
         }
 
-        public bool TryLevelUp(HeroInstance hero)
+        public void AddXP(HeroInstance hero, int amount)
         {
-            if (hero == null) return false;
-
-            HeroDefinition definition = GetDefinition(hero);
-            if (definition == null) return false;
-
-            int maxLevel = definition.MaxLevelPerStar[hero.CurrentStar - 1];
-            if (hero.CurrentLevel >= maxLevel) return false;
-
-            long requiredXP = GetXPRequiredForLevel(hero.CurrentStar, hero.CurrentLevel);
-            if (hero.CurrentXP >= requiredXP)
-            {
-                hero.CurrentXP -= requiredXP;
-                hero.CurrentLevel++;
-                RecalculateStats(hero);
-                OnHeroLevelUp?.Invoke(hero, hero.CurrentLevel);
-                return true;
-            }
-
-            return false;
+            hero.CurrentXP += amount;
+            // XP just accumulates. Player spends Gold to convert XP into Levels.
         }
 
-        /// <summary>
-        /// Higher-star heroes have exponentially steeper growth curves, matching the manhwa's power gap between tiers.
-        /// A 5★ hero will vastly outscale a 4★ hero even at lower levels due to the starMultiplier.
-        /// </summary>
-        public void RecalculateStats(HeroInstance hero)
+        public int GetMaxLevelForStar(int star, HeroDefinition def)
         {
-            if (hero == null) return;
-
-            HeroDefinition definition = GetDefinition(hero);
-            if (definition == null) return;
-
-            // Exponential star scaling: 1★=1.0, 2★=1.4, 3★=1.96, 4★=2.74, 5★=3.84, 6★=5.38, 7★=7.53
-            float starMultiplier = Mathf.Pow(1.4f, hero.CurrentStar - 1);
-
-            int maxLevel = definition.MaxLevelPerStar[hero.CurrentStar - 1];
-            float levelProgress = (maxLevel > 1) ? (float)(hero.CurrentLevel - 1) / (maxLevel - 1) : 0f;
-
-            // Linear level scaling on top of the exponential star base (up to 1.5x at max level)
-            float levelMultiplier = 1f + (levelProgress * 0.5f);
-
-            hero.MaxHP = (int)(definition.BaseHP * starMultiplier * levelMultiplier);
-            hero.ATK = (int)(definition.BaseATK * starMultiplier * levelMultiplier);
-            hero.DEF = (int)(definition.BaseDEF * starMultiplier * levelMultiplier);
-            hero.SPD = (int)(definition.BaseSPD * starMultiplier * levelMultiplier);
-
-            // Crit stats remain flat from definition
-            hero.CritRate = definition.BaseCritRate;
-            hero.CritDmg = definition.BaseCritDmg;
-
-            // Ensure current HP doesn't exceed new max HP
-            hero.CurrentHP = Mathf.Min(hero.CurrentHP, hero.MaxHP);
-
-            // Update EquippedSkills: unlock new skills without removing existing ones
-            if (definition.Skills != null)
-            {
-                foreach (var skillRef in definition.Skills)
-                {
-                    if (skillRef.UnlockLevel <= hero.CurrentLevel)
-                    {
-                        if (!hero.EquippedSkills.Any(s => s.SkillDefId == skillRef.Skill.SkillId))
-                        {
-                            hero.EquippedSkills.Add(new SkillState(skillRef.Skill));
-                        }
-                    }
-                }
-            }
+            if (def != null && def.MaxLevelPerStar != null && star > 0 && star <= def.MaxLevelPerStar.Length)
+                return def.MaxLevelPerStar[star - 1];
+            return star * 10; // Fallback
+            
         }
 
-        #endregion
-
-        #region Helper Methods
-
-        private HeroDefinition GetDefinition(HeroInstance hero)
+        public void UpdateStats(HeroInstance hero, HeroDefinition def)
         {
-            if (hero.CachedDefinition != null && hero.CachedDefinition.HeroId == hero.HeroDefId)
-                return hero.CachedDefinition;
-
-            var def = Resources.LoadAll<HeroDefinition>("").FirstOrDefault(h => h.HeroId == hero.HeroDefId);
-            hero.CachedDefinition = def;
-            return def;
+            float levelMult = 1f + (hero.CurrentLevel - 1) * 0.1f;
+            float starMult = 1f + (hero.CurrentStar - 1) * 0.25f;
+            
+            hero.MaxHP = (int)(def.BaseHP * levelMult * starMult);
+            hero.ATK = (int)(def.BaseATK * levelMult * starMult);
+            hero.DEF = (int)(def.BaseDEF * levelMult * starMult);
+            hero.SPD = (int)(def.BaseSPD * (1 + (hero.CurrentLevel - 1) * 0.02f));
+            hero.CurrentHP = hero.MaxHP; // Full heal on level up
         }
-
-        #endregion
+                public void RecalculateStats(HeroInstance hero, HeroDefinition def)
+        {
+            UpdateStats(hero, def);
+        }
     }
 }

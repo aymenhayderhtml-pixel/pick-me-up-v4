@@ -219,7 +219,7 @@ namespace PickMeUp.Services.Implementations
                 {
                     foreach (var skillState in inst.EquippedSkills)
                     {
-                        SkillDefinition skillDef = dataService.GetSkillDefinition(skillState.SkillDefId);
+                        SkillDefinition skillDef = dataService.GetSkillDefinition(skillState.SkillId);
                         if (skillDef != null)
                         {
                             unit.Skills.Add(new CombatSkillState

@@ -58,7 +58,7 @@ namespace PickMeUp.UI
             _rosterService = ServiceRegistry.Resolve<IHeroRosterService>();
             _towerService = ServiceRegistry.Resolve<ITowerService>();
 
-            if (hubView == null) hubView = FindObjectOfType<HubView>();
+            if (hubView == null) hubView = FindAnyObjectByType<HubView>();
 
             _button.onClick.AddListener(OnClicked);
         }

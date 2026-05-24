@@ -62,7 +62,7 @@ namespace PickMeUp.UI
             
             if (hubView == null)
             {
-                hubView = FindObjectOfType<HubView>();
+                hubView = FindAnyObjectByType<HubView>();
             }
         }
 
