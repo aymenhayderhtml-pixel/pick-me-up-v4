@@ -1,4 +1,4 @@
-// Assets/Scripts/Services/IGachaService.cs
+using System.Collections.Generic;
 using PickMeUp.Data;
 
 namespace PickMeUp.Services
@@ -9,22 +9,27 @@ namespace PickMeUp.Services
     public interface IGachaService
     {
         /// <summary>
-        /// Executes a single pull on the specified banner.
+        /// Executes a pull on the Standard (Gold) banner.
         /// </summary>
-        HeroInstance Pull(int bannerId);
+        List<HeroInstance> PullStandard(int count);
 
         /// <summary>
-        /// Executes a multi-pull (usually 10x) on the specified banner.
+        /// Executes a pull on the Premium (Gem) banner.
         /// </summary>
-        HeroInstance[] PullMultiple(int bannerId, int count);
+        List<HeroInstance> PullPremium(int count);
 
         /// <summary>
-        /// Increments and evaluates the pity counter for a specific banner.
+        /// Checks if the player has enough Gold for a Standard pull.
         /// </summary>
-        void TrackPity(int bannerId);
+        bool CanAffordStandard(int count);
 
         /// <summary>
-        /// Retrieves the current pity count for a specific banner.
+        /// Checks if the player has enough Gems for a Premium pull.
+        /// </summary>
+        bool CanAffordPremium(int count);
+        
+        /// <summary>
+        /// Gets the current pity count for a specific banner (0 = Standard, 1 = Premium).
         /// </summary>
         int GetPityCount(int bannerId);
     }

@@ -130,11 +130,15 @@ namespace PickMeUp.Services.Implementations
                 }
 
                 // Recalculate stats via HeroProgressionService
-                if (ServiceRegistry.HasService<IHeroProgressionService>())
-                {
-                    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
-                    prog.RecalculateStats(resultHero);
-                }
+                // Recalculate stats via HeroProgressionService
+if (ServiceRegistry.HasService<IHeroProgressionService>())
+{
+    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
+    
+    // Fetch the definition using the HeroDefId to pass as the second argument
+    var def = System.Array.Find(Resources.LoadAll<HeroDefinition>(""), d => d.HeroId == resultHero.HeroDefId);
+    prog.RecalculateStats(resultHero, def);
+}
 
                 Debug.Log($"[SynthesisService] Synthesis SUCCESS! {resultHero.HeroDefId} is now {resultHero.CurrentStar}★.");
                 OnSynthesisSuccess?.Invoke(resultHero);
@@ -171,11 +175,15 @@ namespace PickMeUp.Services.Implementations
                 rosterService.AddHero(resultHero);
 
                 // Recalculate stats via HeroProgressionService
-                if (ServiceRegistry.HasService<IHeroProgressionService>())
-                {
-                    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
-                    prog.RecalculateStats(resultHero);
-                }
+               // Recalculate stats via HeroProgressionService
+if (ServiceRegistry.HasService<IHeroProgressionService>())
+{
+    var prog = ServiceRegistry.Resolve<IHeroProgressionService>();
+    
+    // Fetch the definition using the HeroDefId to pass as the second argument
+    var def = System.Array.Find(Resources.LoadAll<HeroDefinition>(""), d => d.HeroId == resultHero.HeroDefId);
+    prog.RecalculateStats(resultHero, def);
+}
 
                 Debug.Log($"[SynthesisService] Synthesis FAILED! Fodder burned. Received consolation hero: {resultHero.HeroDefId}.");
                 OnSynthesisFailure?.Invoke();

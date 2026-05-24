@@ -73,14 +73,14 @@ namespace PickMeUp.UI
         }
 
         private void Retreat()
-        {
-            if (_activeRun != null)
-            {
-                _towerService.EndRun(_activeRun);
-                _activeRun = null;
-            }
-            RefreshUI();
-        }
+{
+    if (_activeRun != null)
+    {
+        _towerService.EndRun(_activeRun);
+        _activeRun = null;
+    }
+    Hide(); // Closes the panel so you can see the dock again!
+}
 
         private void RefreshUI()
         {
@@ -112,6 +112,17 @@ namespace PickMeUp.UI
             }
         }
 
+public void Show() 
+{ 
+    transform.SetAsLastSibling(); // Forces this panel to render ON TOP of the dock!
+    gameObject.SetActive(true); 
+    RefreshUI(); 
+}
+
+public void Hide() 
+{ 
+    gameObject.SetActive(false); 
+}
         private void GenerateNodeButtons()
         {
             if (_activeRun?.CurrentFloorData == null) return;

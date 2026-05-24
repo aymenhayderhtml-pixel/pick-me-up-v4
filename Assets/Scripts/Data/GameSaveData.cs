@@ -121,7 +121,7 @@ namespace PickMeUp.Data
         /// <summary>
         /// Creates a new, default GameSaveData instance for a fresh profile.
         /// </summary>
-        public GameSaveData()
+                public GameSaveData()
         {
             HeroRoster = new List<HeroInstance>();
             Master = new MasterAuthorityData();
@@ -129,6 +129,10 @@ namespace PickMeUp.Data
             SynthesisHistory = new List<SynthesisLogEntry>();
             OfflinePartySnapshot = new List<HeroInstance>();
             Timestamp = DateTime.UtcNow.ToString("o");
+            
+            // NEW: Starting bankroll for testing!
+            Gold = 100000; 
+            Gems = 10000;
         }
 
         #endregion
