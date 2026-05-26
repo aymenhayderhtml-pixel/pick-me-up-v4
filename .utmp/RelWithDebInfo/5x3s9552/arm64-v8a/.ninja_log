@@ -1,0 +1,12 @@
+# ninja log v5
+378	3830	8013297589963154	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	8e139e9fe955f353
+4030	9658	8013297639814391	C:/Users/hp/Desktop/pick-me-up-v4/pick-me-up-v4/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5x3s9552/obj/arm64-v8a/libswappywrapper.so	38a7d2c5d7da3297
+66	13451	8013297686957399	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	782af30a1d5551e8
+33	13833	8013297689885234	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	ae7e470118312a49
+90	13851	8013297690605312	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	220b032496bce254
+294	14076	8013297691615351	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	23f1cfe308519f5f
+2	14475	8013297696273082	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	b81de8c4278b964
+47	16049	8013297712347409	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	f5aac1629856cbf7
+108	16889	8013297720519902	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	eb55eec8548768b2
+18	17217	8013297724482479	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	2f1ba2857150f067
+17246	18570	8013297738267898	C:/Users/hp/Desktop/pick-me-up-v4/pick-me-up-v4/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5x3s9552/obj/arm64-v8a/libgame.so	7e62748d0ae0d7c7

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ae0ea2c0f4b2d4c875883e9cdd6c3d, type: 3}
+  m_Name: village_guard
+  m_EditorClassIdentifier: 
+  HeroId: village_guard
+  HeroName: Village Guard
+  BaseStar: 2
+  Portrait: {fileID: 21300000, guid: ccba6760662925b4f9f6ad0229bc99ba, type: 3}
+  Crest: {fileID: 0}
+  Element: 0
+  ClassType: 0
+  BaseHP: 200
+  BaseATK: 40
+  BaseDEF: 20
+  BaseSPD: 12
+  BaseCritRate: 7
+  BaseCritDmg: 170
+  MaxLevelPerStar: 0a000000140000001e0000002800000032000000
+  HiddenPotential: 0.8690666
+  Personality: 4
+  SpecialOrgan: 
+  IsAlive: 1
+  DefaultMorale: 100

@@ -22,6 +22,7 @@ namespace PickMeUp.Services.Implementations
         // Pity Thresholds
         private const int STD_PITY_THRESHOLD = 10; // Guarantees 2★ or higher
         private const int PREM_PITY_THRESHOLD = 10; // Guarantees 4★ or higher
+        private const int PREM_GUARANTEE_THRESHOLD = 7; // UI shows badge at 7
 
         private GachaPityData _pityData;
         private readonly object _lock = new object();
@@ -66,6 +67,40 @@ namespace PickMeUp.Services.Implementations
             var save = ServiceRegistry.Resolve<ISaveLoadService>().Load();
             int cost = count >= 10 ? PREM_COST_10 : PREM_COST_1;
             return save.Gems >= cost;
+        }
+
+        // NEW: Expose Pity and Guarantee for UI
+                public int GetPityCount(int bannerId)
+        {
+            lock (_lock)
+            {
+                // Use a simple foreach to avoid LINQ null/struct issues
+                foreach (var entry in _pityData.BannerPityCounters)
+                {
+                    if (entry.BannerId == bannerId) return entry.PullCount;
+                }
+                return 0;
+            }
+        }
+
+        public bool IsPremiumGuaranteed()
+        {
+            return GetPityCount(BANNER_PREMIUM) >= PREM_GUARANTEE_THRESHOLD;
+        }
+
+        public int GetPremiumGuaranteeThreshold()
+        {
+            return PREM_GUARANTEE_THRESHOLD;
+        }
+
+        public int GetStandardPityThreshold()
+        {
+            return STD_PITY_THRESHOLD;
+        }
+
+        public int GetPremiumPityThreshold()
+        {
+            return PREM_PITY_THRESHOLD;
         }
 
         private List<HeroInstance> ExecutePull(int bannerId, int count)
@@ -185,27 +220,19 @@ namespace PickMeUp.Services.Implementations
             }
         }
 
-        public int GetPityCount(int bannerId)
+                private void InitPity()
         {
             lock (_lock)
             {
-                var entry = _pityData.BannerPityCounters.FirstOrDefault(e => e.BannerId == bannerId);
-                return entry.PullCount;
-            }
-        }
-
-        private void InitPity()
-        {
-            lock (_lock)
-            {
-                try
-                {
-                    var save = ServiceRegistry.Resolve<ISaveLoadService>().Load();
-                    _pityData = save.Pity ?? new GachaPityData();
+                try 
+                { 
+                    var loadedData = ServiceRegistry.Resolve<ISaveLoadService>().Load().Pity;
+                    // Safe assignment whether GachaPityData is a class or struct
+                    _pityData = loadedData ?? new GachaPityData(); 
                 }
-                catch
-                {
-                    _pityData = new GachaPityData();
+                catch 
+                { 
+                    _pityData = new GachaPityData(); 
                 }
             }
         }

@@ -22,11 +22,20 @@ namespace PickMeUp.Data
         public int SPD;
         public int CritRate;
         public int CritDmg;
-        public int Morale;
+        
+        // NEW: Manhwa Runtime Stats
+        public float Morale;
+        public bool IsPermaDead;  // Renamed from IsAlive to avoid conflict with IsAliveState property
+        public float HiddenPotential;
+        public PersonalityTrait Personality;
+        public string SpecialOrgan;
 
         public List<CombatSkillState> EquippedSkills;
 
-        public HeroInstance() { EquippedSkills = new List<CombatSkillState>(); }
+        public HeroInstance() 
+        { 
+            EquippedSkills = new List<CombatSkillState>(); 
+        }
 
         public HeroInstance(HeroDefinition definition)
         {
@@ -42,12 +51,20 @@ namespace PickMeUp.Data
             SPD = definition.BaseSPD;
             CritRate = definition.BaseCritRate;
             CritDmg = definition.BaseCritDmg;
-            Morale = 10000;
+            
+            // NEW: Initialize Manhwa Stats
+            Morale = definition.DefaultMorale;
+            IsPermaDead = !definition.IsAlive;  // If definition says not alive, hero starts perma-dead
+            HiddenPotential = definition.HiddenPotential;
+            Personality = definition.Personality;
+            SpecialOrgan = definition.SpecialOrgan;
+
             IsLocked = false;
             PromotionCount = 0;
             EquippedSkills = new List<CombatSkillState>();
         }
 
-        public bool IsAlive => CurrentHP > 0;
+        // Combat-relevant alive check (HP > 0 AND not permanently dead)
+        public bool IsAliveState => CurrentHP > 0 && !IsPermaDead;
     }
 }

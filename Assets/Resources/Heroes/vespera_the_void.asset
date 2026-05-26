@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ae0ea2c0f4b2d4c875883e9cdd6c3d, type: 3}
+  m_Name: vespera_the_void
+  m_EditorClassIdentifier: 
+  HeroId: vespera_the_void
+  HeroName: Vespera the Void
+  BaseStar: 4
+  Portrait: {fileID: 21300000, guid: 9bcab006bb7cd0342a07e55543e91a71, type: 3}
+  Crest: {fileID: 0}
+  Element: 0
+  ClassType: 0
+  BaseHP: 400
+  BaseATK: 80
+  BaseDEF: 40
+  BaseSPD: 14
+  BaseCritRate: 9
+  BaseCritDmg: 190
+  MaxLevelPerStar: 0a000000140000001e0000002800000032000000
+  HiddenPotential: 0.58284533
+  Personality: 5
+  SpecialOrgan: Void-Touched Eye
+  IsAlive: 1
+  DefaultMorale: 100
